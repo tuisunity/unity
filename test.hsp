@@ -1,0 +1,101 @@
+buffer 1,80,40
+picload "unko2.bmp"
+screen 0,400,400
+
+//©‹@‚Ì’e‚Ìî•ñ
+dim tama,40
+dim tama_x,40
+dim tama_y,40
+//“G‚Ìî•ñ
+dim enemy,20
+dim enemy_x,20
+dim enemy_y,20
+
+*main
+gosub *display
+gosub *jiki_process
+gosub *enemy_appear
+gosub *enemy_process
+gosub *bullet
+redraw 1
+wait 1
+redraw 0
+goto *main
+
+//‰æ–Ê‰Šú‰»•©‹@•`‰æƒ‹[ƒ`ƒ“
+*display
+color 255,255,255
+boxf 0,0,400,400 //”wŒi“h‚è‚Â‚Ô‚µ
+pos x,y
+gcopy 1,0,0,40,40 //©‹@•\¦
+return
+
+//©‹@‚Ì‘€ìƒ‹[ƒ`ƒ“
+*jiki_process
+stick key,31
+if key & 1:x--
+if key & 2:y--
+if key & 4:x++
+if key & 8:y++
+if key & 16 {
+	repeat 40
+	if tama(cnt) = 0 {
+		tama(cnt) = 1
+		tama_x(cnt) = (x + 20)
+		tama_y(cnt) = y
+		break
+	}
+	loop
+}
+if x < 0 :x = 0
+if x > 360:x = 360
+if y < 0 :y = 0
+if y > 360:y = 360
+return
+
+//“GoŒ»ƒ‹[ƒ`ƒ“
+*enemy_appear
+time++
+if (time \ 200) = 0 {
+	repeat 20
+	if enemy(cnt) = 0 {
+		enemy(cnt) = 1
+		enemy_x(cnt) = rnd(361)
+		enemy_y(cnt) = -40
+		enemy_hp(cnt) = 10
+		break
+	}
+	loop
+}
+return
+
+*enemy_process
+//“G‚Ìˆ—
+repeat 20
+if enemy_y(cnt) > 400 : enemy(cnt) = 0
+if enemy(cnt) = 1{
+	enemy_y(cnt)++
+	if (abs(x - enemy_x(cnt)) < 40) & (abs(y - enemy_y(cnt)) < 40): enemy(cnt) = 0
+	pos enemy_x(cnt),enemy_y(cnt)
+	gcopy 1,40,0,40,40
+}
+loop
+return
+
+//’e‚Ìˆ—ƒ‹[ƒ`ƒ“
+*bullet
+repeat 40
+if tama_y(cnt) < 0 : tama(cnt) = 0
+if tama(cnt) = 1 {
+	tama_y(cnt)-=10
+	i = cnt
+	repeat 20
+	if enemy(cnt) = 1 {
+		if (abs(tama_x(i) - enemy_x(cnt)) < 40) & (abs(tama_y(i) - enemy_y(cnt)) < 40): enemy(cnt) = 0
+	}
+	loop
+	color 0,0,0
+	pset tama_x(cnt),tama_y(cnt)
+}
+loop
+return
